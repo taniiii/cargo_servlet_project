@@ -1,0 +1,16 @@
+<Context>
+    <Resource name="jdbc/cargo"
+              auth="Container"
+              type="javax.sql.DataSource"
+              factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+              validationQuery="SELECT 1"
+              validationInterval="30000"
+              username="root"
+              password="Tan456*Y"
+              driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/cargo_servlet_db?characterEncoding=utf8"
+              removeAbandoned="true"
+              removeAbandonedTimeout="30"
+              maxActive="100"
+              maxIdle="15"/>
+</Context>

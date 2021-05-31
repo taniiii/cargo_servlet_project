@@ -1,0 +1,42 @@
+package org.cargo.controller.filter;
+
+
+import org.apache.log4j.Logger;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+public class EncodingFilter implements Filter {
+    private static final Logger LOGGER = Logger.getLogger(EncodingFilter.class);
+
+    private String encoding;
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest,
+                         ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
+        LOGGER.debug("Filter starts");
+
+        servletResponse.setContentType("text/html");
+        servletResponse.setCharacterEncoding("UTF-8");
+        servletRequest.setCharacterEncoding("UTF-8");
+
+
+        LOGGER.debug("Filter finished");
+        filterChain.doFilter(servletRequest, servletResponse);
+
+    }
+
+    @Override
+    public void destroy() {
+        LOGGER.debug("Filter destruction starts");
+        // do nothing
+        LOGGER.debug("Filter destruction finished");
+    }
+}

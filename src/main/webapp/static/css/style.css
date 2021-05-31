@@ -1,0 +1,11 @@
+body {
+    background-image: url('../../auto.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/*.image {*/
+/*    background-image: url(../img/auto.jpg);*/
+/*    width: 50px; !* ширина *!*/
+/*    height: 50px; !* высота *!*/
+/*}*/

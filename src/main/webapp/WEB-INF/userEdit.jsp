@@ -1,14 +1,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page isELIgnored="false" %>
 
 <html>
-<%@include file="jspf/header.jsp"%>
+<%@include file="jspf/header.jsp" %>
 
 <body style="'background: url(/static/images/ship5.jpg) no-repeat center center fixed;'">
-<%@include file="jspf/navbar.jsp"%>
+<%@include file="jspf/navbar.jsp" %>
+
+<div>
+    <c:if test="${requestScope.msgUpdate != null}">
+        <div class="alert alert-warning"><fmt:message key="bad.update" bundle="${bundle}"/></div>
+    </c:if>
+</div>
 
 <div class="container">
     <h2><fmt:message key="user.edit" bundle="${bundle}"/></h2>
@@ -33,7 +39,7 @@
 
 </div>
 
-<!-- Separate Popper and Bootstrap JS -->
+
 <%@include file="jspf/footer.jsp"%>
 </body>
 </html>

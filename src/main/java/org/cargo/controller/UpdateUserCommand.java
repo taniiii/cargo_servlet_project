@@ -8,6 +8,7 @@ import org.cargo.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Objects;
 
 public class UpdateUserCommand implements Command{
     private static final Logger LOGGER = Logger.getLogger(GetUserListPageCommand.class);
@@ -31,19 +32,18 @@ public class UpdateUserCommand implements Command{
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.debug("Executing user update command");
 
-        String resultPage = userlistPage;
         HttpSession session = request.getSession();
         User userToUpdate = (User) session.getAttribute("updatedUser");
-//        Map<String, String[]> roleForm = request.getParameterMap();
 
-        if (request.getParameter("updateName") != null // вместо проверки сделат валидацию и проверять на налл уже в сервисе
-//                && roleForm != null) {
-                && request.getParameter("updateRole") != null) {
+        if (Objects.nonNull(request.getParameter("updateName")) &&
+                Objects.nonNull(request.getParameter("updateRole"))) {
+
             userToUpdate.setUsername(request.getParameter("updateName"));
             userService.saveUser(userToUpdate, request.getParameter("updateRole"));
         } else {
-            request.setAttribute("msg", "No user details to update"); //TODO in18ze
+            request.setAttribute("msgUpdate", " ");
+            return userEditPage;
         }
-        return resultPage;
+        return userlistPage;
     }
 }

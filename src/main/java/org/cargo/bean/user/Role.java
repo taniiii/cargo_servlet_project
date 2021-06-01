@@ -1,5 +1,5 @@
 package org.cargo.bean.user;
 
-public enum Role { //TODO class or enum?????
+public enum Role {
     USER, ADMIN;
 }

@@ -20,33 +20,40 @@ public class Servlet extends HttpServlet {
 
     public void init(ServletConfig config) throws ServletException {
         LOGGER.info("Initializing Servlet");
-        commandManager = new CommandManager();
 
-//        config.getServletContext()
-//                .setAttribute("loggedUsers", new HashSet<String>());
+        commandManager = new CommandManager();
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         LOGGER.info("Processing get request");
 
-        Command command = commandManager.getGetCommand(request);
-        String page = command.execute(request, response);
-
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
-        request.getRequestDispatcher(page).forward(request, response);
+        processRequest(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         LOGGER.info("Processing post request");
 
-        Command command = commandManager.getPostCommand(request);
-        String page = command.execute(request, response);
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
+        processRequest(request, response);
+    }
 
-        response.sendRedirect(page);
+    /**
+     * This method is used to get a command instance mapped to http get/post method, based on a request.
+     * and sets redirect or forward action according to result of execute() method
+     */
+    private void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String path = request.getRequestURI();
+        path = path.replaceAll(".*/cargo", "");
+        Command command = commandManager.getCommand(path);
+
+        String page = command.execute(request, response);
+
+        if (page.contains("redirect:")) {
+            response.sendRedirect(page.replace("redirect:", "/cargo"));
+        } else {
+            request.getRequestDispatcher(page).forward(request, response);
+        }
     }
 }

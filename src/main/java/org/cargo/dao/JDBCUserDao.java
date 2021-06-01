@@ -241,7 +241,7 @@ public class JDBCUserDao implements UserDao {
     }
 
     @Override
-    public void close() {  //зачем метод, где использовать?
+    public void close() {
         try {
             connection.close();
         } catch (SQLException e) {

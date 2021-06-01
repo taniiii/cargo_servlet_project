@@ -32,8 +32,8 @@ public class JDBCTranspDao implements TranspDao{
             PreparedStatement pstm2 = connection.prepareStatement("SELECT * FROM tariffs WHERE address = ? AND size = ? AND weight = ?")) {
             connection.setAutoCommit(false);
 
-            pstm2.setString(1, tr.getTariff().getAddress().name()); //прверить нужен стринг или нєйм или обджект
-            pstm2.setString(2,  tr.getTariff().getSize().name());
+            pstm2.setString(1, tr.getTariff().getAddress().name());
+            pstm2.setString(2, tr.getTariff().getSize().name());
             pstm2.setString(3, tr.getTariff().getWeight().name());
             ResultSet rs = pstm2.executeQuery();
 
@@ -63,7 +63,7 @@ public class JDBCTranspDao implements TranspDao{
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
             rollbackQuiet(connection);
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage());  //TODO
         }
     }
     /**
@@ -75,7 +75,8 @@ public class JDBCTranspDao implements TranspDao{
         LOGGER.debug("Getting transportation with id " + id);
         Transportation tr = new Transportation();
 
-        try(PreparedStatement ps = connection.prepareStatement("SELECT * FROM transportations WHERE id = ?;")){
+        try(PreparedStatement ps = connection.prepareStatement("SELECT * FROM transportations WHERE id = ?;")) {
+            connection.setAutoCommit(false);
 
             ps.setInt(1, id);
             ResultSet rst = ps.executeQuery();
@@ -83,9 +84,13 @@ public class JDBCTranspDao implements TranspDao{
             while (rst.next()) {
                 tr = getTransportation(rst);
             }
+
+            connection.commit();
+            connection.setAutoCommit(true);
             rst.close();
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
+            rollbackQuiet(connection);
         }
         return tr;
     }
@@ -103,14 +108,15 @@ public class JDBCTranspDao implements TranspDao{
             connection.setAutoCommit(false);
             ResultSet rs = pstm.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 transpList.add(getTransportation(rs));
             }
-//            rs.close();
+
+            rs.close();
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
             rollbackQuiet(connection);
         }
         return transpList;
@@ -145,9 +151,9 @@ public class JDBCTranspDao implements TranspDao{
             ResultSet rst = ps.executeQuery();
 
             user = getUser(rst);
-//            rst.close();
+
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage());  //TODO
         }
         return user;
     }
@@ -175,9 +181,9 @@ public class JDBCTranspDao implements TranspDao{
             ResultSet rst = ps.executeQuery();
 
             tariff = mapTariff(rst);
-//            rst.close();
+
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
         }
         return tariff;
     }
@@ -214,7 +220,7 @@ public class JDBCTranspDao implements TranspDao{
             LOGGER.debug("Transportation with id" + id + " has been saved");
             return true;
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
             return false;
         }
     }
@@ -246,7 +252,7 @@ public class JDBCTranspDao implements TranspDao{
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
             rollbackQuiet(connection);
         }
 
@@ -272,7 +278,7 @@ public class JDBCTranspDao implements TranspDao{
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
             rollbackQuiet(connection);
         }
         return temp;
@@ -283,22 +289,22 @@ public class JDBCTranspDao implements TranspDao{
         LOGGER.debug("Getting transportation by address with offset " + offset + ", size " + size);
         List<Transportation> transportations = new ArrayList<>();
 
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations tr JOIN users u ON tr.user_id=u.id JOIN tariffs t ON tr.tariff_id=t.id WHERE t.address LIKE ? ORDER BY tr.id " +
-                 sortDirection + " LIMIT ?, ?")){ //
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations tr JOIN users u ON tr.user_id=u.id JOIN tariffs t ON tr.tariff_id=t.id WHERE t.address LIKE ? ORDER BY tr.id " +
+                sortDirection + " LIMIT ?, ?")) { //TODO rewrite with arguments
 
             pstm.setString(1, address);
             pstm.setInt(2, offset);
             pstm.setInt(3, size);
             ResultSet rs = pstm.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Transportation temp = createTransportation(rs);
                 transportations.add(temp);
             }
             rs.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
 
         }
         return transportations;
@@ -326,7 +332,7 @@ public class JDBCTranspDao implements TranspDao{
             rs.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
 
         }
         return transportations;
@@ -368,7 +374,7 @@ public class JDBCTranspDao implements TranspDao{
         try {
             con.rollback();
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
         }
     }
 }

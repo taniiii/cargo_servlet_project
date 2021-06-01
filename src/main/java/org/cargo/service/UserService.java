@@ -2,16 +2,13 @@ package org.cargo.service;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.Page;
-import org.cargo.bean.transportation.Tariff;
 import org.cargo.bean.user.Role;
 import org.cargo.bean.user.User;
 import org.cargo.dao.DaoFactory;
-import org.cargo.dao.JDBCDaoFactory;
 import org.cargo.dao.UserDao;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,21 +63,17 @@ public class UserService {
     public User getUserByCredentials(String username, String password) {
         LOGGER.debug("Getting user from database by credentials");
 
-        if (username.isEmpty() || password.isEmpty()) {
-            throw new RuntimeException("email or password should not be empty/null"); //TODO на кастомное исключение
-        } else {
             try (UserDao userDao = daoFactory.createUserDao()) {
                 return userDao.findUserByUsernameAndPassword(username, password);
-            } //TODO нужно ли закрывать close();
-        }
+            }
     }
 
     public User registerUser(User user) {
         LOGGER.debug("New user registration");
 
-            try(UserDao userDao = daoFactory.createUserDao()){
-                return (User) userDao.create(user);
-            }
+        try (UserDao userDao = daoFactory.createUserDao()) {
+            return (User) userDao.create(user);
+        }
     }
 
     public User findUserByUsername(String username) {
@@ -89,15 +82,11 @@ public class UserService {
         try(UserDao userDao = daoFactory.createUserDao()){
             return userDao.findUserByUsername(username);
         }
-
     }
 
     public User findUserById(Integer id) {
         LOGGER.debug("Finding user by id " + id);
 
-        if (id == null) {
-            throw new RuntimeException("Id should not be empty/null"); //TODO
-        }
         try(UserDao userDao = daoFactory.createUserDao()){
             return (User) userDao.findById(id);
         }
@@ -106,16 +95,16 @@ public class UserService {
     public boolean updateProfile(User user) {
         LOGGER.debug("Updating user from database");
 
-            try(UserDao userDao = daoFactory.createUserDao()){
-                return userDao.update(user);
-            }
+        try (UserDao userDao = daoFactory.createUserDao()) {
+            return userDao.update(user);
+        }
     }
 
 
     public boolean saveUser(User user, String updateRole) {
         LOGGER.debug("Saving new user authrities to database");
 
-        Set<String> roles = Arrays.stream(Role.values()) //смотрим какие роли есть вообще
+        Set<String> roles = Arrays.stream(Role.values())
                 .map(Role::name)
                 .collect(Collectors.toSet());
 

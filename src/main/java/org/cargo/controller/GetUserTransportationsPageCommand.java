@@ -2,20 +2,20 @@ package org.cargo.controller;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.Page;
-import org.cargo.bean.transportation.Tariff;
 import org.cargo.bean.transportation.Transportation;
-import org.cargo.bean.user.User;
 import org.cargo.properties.MappingProperties;
 import org.cargo.service.TransportationService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+
+import static org.cargo.service.Validator.validatePageRequest;
 
 public class GetUserTransportationsPageCommand implements Command{
     private static final Logger LOGGER = Logger.getLogger(GetUserTransportationsPageCommand.class);
 
     private static String userTransportationsPage;
-    private static String errorAccessPage;
     private static TransportationService transpService = TransportationService.getInstance();
 
     public GetUserTransportationsPageCommand() {
@@ -23,17 +23,26 @@ public class GetUserTransportationsPageCommand implements Command{
 
         MappingProperties properties = MappingProperties.getInstance();
         userTransportationsPage = properties.getProperty("userTransportationsPage");
-        errorAccessPage = properties.getProperty("errorAccessPage");
     }
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.debug("Executing send user transportations list page command");
 
-        Integer pageNo = Integer.parseInt(request.getParameter("p"));
-        Integer pageSize = Integer.parseInt(request.getParameter("s"));
-        String sortDirection = request.getParameter("sortDirection");
-        String sortBy = request.getParameter("sortBy");
+        Map<String, String> pageParams = validatePageRequest(request.getParameter("p"),
+                request.getParameter("s"), request.getParameter("sortDirection"),
+                request.getParameter("sortBy"));
+
+        Integer pageNo = Integer.parseInt(pageParams.getOrDefault("p", "1"));
+        Integer pageSize = Integer.parseInt(pageParams.getOrDefault("s", "10"));
+        String sortDirection = pageParams.getOrDefault("sortDirection", "ASC");
+        String sortBy = pageParams.getOrDefault("sortBy", "id");
+
+//        Integer pageNo = Integer.parseInt(request.getParameter("p"));
+//        Integer pageSize = Integer.parseInt(request.getParameter("s"));
+//        String sortDirection = request.getParameter("sortDirection");
+//        String sortBy = request.getParameter("sortBy");
+
 
         Page<Transportation> page = transpService.findTransportationsByUser(
                 request.getSession().getAttribute("user"), pageNo, pageSize, sortDirection, sortBy);

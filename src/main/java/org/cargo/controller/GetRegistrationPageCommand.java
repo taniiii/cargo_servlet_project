@@ -1,39 +1,63 @@
 package org.cargo.controller;
 
 import org.apache.log4j.Logger;
+import org.cargo.bean.user.Role;
+import org.cargo.bean.user.User;
+import org.cargo.bean.user.UserBuilder;
 import org.cargo.properties.MappingProperties;
+import org.cargo.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
-public class GetRegistrationPageCommand implements Command{
+import static org.cargo.service.Validator.validateRegistration;
+
+public class GetRegistrationPageCommand implements Command {
     private static final Logger LOGGER = Logger.getLogger(GetRegistrationPageCommand.class);
 
+    private static UserService userService = UserService.getInstance();
+
     private static String registrationPage;
-    private static String homePage;
+    private static String loginPage;
 
     public GetRegistrationPageCommand() {
-      LOGGER.debug("Initializing GetRegistrationPageCommand");
+        LOGGER.debug("Initializing GetRegistrationPageCommand");
 
         MappingProperties properties = MappingProperties.getInstance();
         registrationPage = properties.getProperty("registerPage");
-        homePage = properties.getProperty("homepage");
+        loginPage = properties.getProperty("redirect.login");
     }
 
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        LOGGER.debug("Executing send registration page command");
+        LOGGER.debug("Executing registration page command");
 
         String resultPage = registrationPage;
 
-        if (request.getSession().getAttribute("authenticated") != null &&
-                request.getSession().getAttribute("authenticated").equals(true)) {
-            resultPage = homePage;
-        } else if (request.getParameter("username") == null || request.getParameter("password") == null ||
-                request.getParameter("email") == null) {
-            //request.setAttribute("msg", "Please fill in all the fields");  можно сделать error message
-            LOGGER.debug("User is not registered yet, returning registration form page");
-            return resultPage;
+        if (!validateRegistration(request.getParameter("username"), request.getParameter("password"),
+                request.getParameter("email"))) {
+
+            LOGGER.debug("Bad credentials, returning registration form page");
+            request.setAttribute("msg", " ");
+            return registrationPage;
         }
-        return resultPage;
+
+        if (Objects.nonNull(userService.findUserByUsername(request.getParameter("username")))) {
+            request.setAttribute("msgExists", " ");
+            return registrationPage;
+        }
+
+        User user = new UserBuilder().setUsername(request.getParameter("username"))
+                .setPassword(request.getParameter("password"))
+                .setEmail(request.getParameter("email"))
+                .setUserRole(Role.USER)
+                .build();
+
+        userService.registerUser(user);
+
+        LOGGER.debug("User registered successfully");
+        request.getSession().setAttribute("msgSuccess", "You have been registered successfully");
+
+        return loginPage;
     }
 }

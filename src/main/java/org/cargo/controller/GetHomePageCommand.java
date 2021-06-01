@@ -5,9 +5,7 @@ import org.cargo.properties.MappingProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * This class is used to handle GET requests to the home page.
@@ -23,14 +21,11 @@ public class GetHomePageCommand implements Command{
     }
 
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response){
-        LOGGER.debug("Executing command");
-//        Optional<String> locale = Optional.of(request.getParameter("locale"));
-//
-//        request.setAttribute("locale", locale.orElse("en"));
-        if (request.getParameter("locale") != null) {
-            String locale = request.getParameter("locale");
-            switch (locale) {
+    public String execute(HttpServletRequest request, HttpServletResponse response) {
+        LOGGER.debug("Executing home page command");
+
+        if (Objects.nonNull(request.getParameter("locale"))) {
+            switch (request.getParameter("locale")) {
                 case "en":
                     request.getSession().setAttribute("locale", "en");
                     break;
@@ -40,15 +35,6 @@ public class GetHomePageCommand implements Command{
             }
         }
 
-//        HttpSession session = request.getSession();
-//        String locale = request.getParameter("locale");
-//        String previousRequest = (String) session.getAttribute("previous_request");
-//        session.setAttribute("locale", locale);
-//        try {
-//            response.sendRedirect(previousRequest);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
         return homepage;
     }
 }

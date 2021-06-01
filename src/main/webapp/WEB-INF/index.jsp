@@ -34,18 +34,18 @@
 </head>
 
 <body>
-<%@include file="jspf/navbar.jsp"%>
-<img src="<c:url value="/auto.jpg"/>" />
+<%@include file="jspf/navbar.jsp" %>
+<img src="<c:url value="/static/img/auto.jpg"/>"/>
 <%--<img src="${pageContext.request.contextPath}/static/img/auto.jpg"/>--%>
 
 <div class="container mt-5">
 
-        <c:if test="${sessionScope.authenticated == null}">
-            <fmt:message key="company.greeting" bundle="${bundle}"/>, Guest!
-        </c:if>
+    <c:if test="${sessionScope.authenticated == null}">
+        <fmt:message key="company.greeting" bundle="${bundle}"/>, Guest!
+    </c:if>
 
-<c:if test="${sessionScope.user != null}">
-    <fmt:message key="company.greeting" bundle="${bundle}"/>, ${sessionScope.user.getUsername()}!
+    <c:if test="${sessionScope.user != null}">
+        <fmt:message key="company.greeting" bundle="${bundle}"/>, ${sessionScope.user.getUsername()}!
 </c:if>
 </div>
 

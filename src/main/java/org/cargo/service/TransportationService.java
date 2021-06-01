@@ -2,18 +2,17 @@ package org.cargo.service;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.Page;
-import org.cargo.bean.transportation.*;
-import org.cargo.bean.user.Role;
+import org.cargo.bean.transportation.OrderStatus;
+import org.cargo.bean.transportation.Tariff;
+import org.cargo.bean.transportation.Transportation;
+import org.cargo.bean.transportation.TransportationBuilder;
 import org.cargo.bean.user.User;
 import org.cargo.dao.DaoFactory;
 import org.cargo.dao.TranspDao;
-import org.cargo.dao.UserDao;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 public class TransportationService {
     private static final Logger LOGGER = Logger.getLogger(TransportationService.class);
@@ -33,28 +32,28 @@ public class TransportationService {
         }
         return trService;
     }
+
     /**
      * This method creates new transportation order with user,
      * tariff and order comment
-     *
      */
-    public Transportation createTransportation(User user, Tariff tariff, String comment) {//TODO testing services
+    public Transportation createTransportation(User user, Tariff tariff, String comment) {
         LOGGER.debug("Saving new transportation order");
-//TODO check is comment is null then set "" or else set comment
-      //  if(user != null && tariff != null){  //usr not null annotation
-            Transportation temp = new TransportationBuilder().setComment(comment)
-                                .setCustomer(user)
-                                .setCreationDate(LocalDate.now())
-                                .setTariff(tariff)
-                                .setDeliveryDate(LocalDate.now().plusDays(tariff.getDeliveryTermDays()))
-                                .setOrderStatus(OrderStatus.NEW)
-                                .build();
+
+        Transportation temp = new TransportationBuilder()
+                .setComment(Objects.isNull(comment) ? "" : comment)
+                .setCustomer(user)
+                .setCreationDate(LocalDate.now())
+                .setTariff(tariff)
+                .setDeliveryDate(LocalDate.now().plusDays(tariff.getDeliveryTermDays()))
+                .setOrderStatus(OrderStatus.NEW)
+                .build();
 
 
-            try(TranspDao transpDao = daoFactory.createTranspDao()){
-                return (Transportation) transpDao.create(temp);
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
+            return (Transportation) transpDao.create(temp);
             }
-        //}
+
     }
 
     /**
@@ -63,26 +62,10 @@ public class TransportationService {
     public List<Transportation> getAllTransportations(){
         LOGGER.debug("Fetching all the transportations from database");
 
-        try(TranspDao transpDao = daoFactory.createTranspDao()){//;
-//            UserDao userDao = daoFactory.createUserDao()){
-
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
             return transpDao.findAll();
         }
     }
-
-    /**
-     * This method finds unique transportation by its id.
-     */
-//    public Transportation findTransportationById(Integer id){
-//        LOGGER.debug("Finding transportation by id " + id);
-//
-//        if (id == null) {
-//            throw new RuntimeException("Id should not be empty/null"); //TODO
-//        }
-//        try(TranspDao transpDao = daoFactory.createTranspDao()){
-//            return (Transportation) transpDao.findById(id);
-//        }
-//    }
 
     public boolean saveTransportation(Integer id, OrderStatus status){
         LOGGER.debug("Saving new transportation status to database");

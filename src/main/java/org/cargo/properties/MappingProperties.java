@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class MappingProperties {
-    //private static final Logger LOGGER = Logger.getLogger(MappingProperties.class);
+    private static final Logger LOGGER = Logger.getLogger(MappingProperties.class);
 
     private static MappingProperties instance = null;
 
@@ -15,7 +15,7 @@ public class MappingProperties {
     private static String propertyFileName = "mapping.properties";
 
     private MappingProperties(){
-        //LOGGER.info("Initializing MappingProperties class");
+        LOGGER.info("Initializing MappingProperties class");
 
         properties = new Properties();
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propertyFileName);
@@ -24,16 +24,16 @@ public class MappingProperties {
             if (inputStream != null) {
                 properties.load(inputStream);
             } else {
-              //  LOGGER.error("Mapping properties file not found on the classpath");
+                LOGGER.error("Mapping properties file not found on the classpath");
             }
 
         } catch (IOException e) {
-          //  LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage()); //TODO
         } finally {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                e.printStackTrace(); //TODO work this exception out
+                LOGGER.error(e.getMessage()); //TODO work this exception out
             }
         }
     }

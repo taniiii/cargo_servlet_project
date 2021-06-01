@@ -4,13 +4,11 @@ package org.cargo.controller.filter;
 import org.apache.log4j.Logger;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class EncodingFilter implements Filter {
     private static final Logger LOGGER = Logger.getLogger(EncodingFilter.class);
 
-    private String encoding;
 
     @Override
     public void init(FilterConfig filterConfig) {

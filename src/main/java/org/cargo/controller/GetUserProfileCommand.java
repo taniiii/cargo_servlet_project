@@ -3,6 +3,7 @@ package org.cargo.controller;
 import org.apache.log4j.Logger;
 import org.cargo.bean.user.User;
 import org.cargo.properties.MappingProperties;
+import org.cargo.service.Encoder;
 import org.cargo.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,7 @@ public class GetUserProfileCommand implements Command {
         if (validateProfileUpdate(request.getParameter("password"),
                 request.getParameter("email"))) {
             user.setEmail(request.getParameter("email"));
-            user.setPassword(request.getParameter("password"));
+            user.setPassword(Encoder.encrypt(request.getParameter("password")));
             userService.updateProfile(user);
 
             return homePage;

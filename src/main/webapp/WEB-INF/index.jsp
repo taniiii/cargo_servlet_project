@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@taglib prefix="tag" uri="/WEB-INF/tld/MySimpleTagDescriptor.tld" %>
 <%@ page contentType="text/html;charset=UTF-8"%>
 <%@ page isELIgnored="false" %>
 
@@ -46,10 +47,13 @@
 
     <c:if test="${sessionScope.user != null}">
         <fmt:message key="company.greeting" bundle="${bundle}"/>, ${sessionScope.user.getUsername()}!
-</c:if>
+    </c:if>
 </div>
 
-<%@include file="jspf/footer.jsp"%>
+<div id="bottom">
+    <%--    <tag:MySimpleTag/>--%>
+</div>
+<%@include file="jspf/footer.jsp" %>
 
 </body>
 </html>

@@ -97,7 +97,7 @@ public class JDBCUserDao implements UserDao {
                         .setEmail(rs.getString("email"))
                         .setUserRole(Role.values()[rs.getInt("role_id") - 1])
                             .build();
-//                userList.add(getUser(rs));
+
                 userList.add(user);
             }
             rs.close();
@@ -161,7 +161,7 @@ public class JDBCUserDao implements UserDao {
             return true;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
-            throw new DaoException("User was not updated");//return false;
+            throw new DaoException("User was not updated");
         }
     }
 

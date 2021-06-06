@@ -126,8 +126,27 @@ public class JDBCTranspDao implements TranspDao{
     }
 
     @Override
-    public boolean update(Object entity) { //TODO
-        return false;
+    public boolean update(Object entity) throws DaoException {
+        LOGGER.debug("Updating current transportation --> " + entity);
+        Transportation tr = (Transportation) entity;
+        try (PreparedStatement pstm = connection.prepareStatement("UPDATE transportations set comment=?, user_id=?, tariff_id=?, created_at=?, delivery_at=?, status_id=? WHERE id=?;", Statement.RETURN_GENERATED_KEYS)) {
+
+            pstm.setString(1, tr.getComment());
+            pstm.setInt(2, tr.getCustomer().getId());
+            pstm.setInt(3, tr.getTariff().getId());
+            pstm.setString(4, tr.getCreationDate().toString());
+            pstm.setString(5, tr.getDeliveryDate().toString());
+            pstm.setInt(6, tr.getId());
+
+            pstm.executeUpdate();
+
+            LOGGER.debug("Transportation id=" + tr.getId() + " has been updated");
+            pstm.close();
+            return true;
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+            throw new DaoException("Transportation was not updated");
+        }
     }
 
     /**

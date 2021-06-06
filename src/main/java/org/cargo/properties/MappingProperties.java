@@ -28,12 +28,12 @@ public class MappingProperties {
             }
 
         } catch (IOException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
         } finally {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                LOGGER.error(e.getMessage()); //TODO work this exception out
+                LOGGER.error(e.getMessage());
             }
         }
     }

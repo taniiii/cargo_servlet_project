@@ -2,11 +2,10 @@ package org.cargo.bean.user;
 
 import org.cargo.bean.transportation.Transportation;
 
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
-public class User {  //TODO добавить serialization, serialVersionUID (сначала активировать в настройках)
+public class User {
 
     private int id;
     private String username;

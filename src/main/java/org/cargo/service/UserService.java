@@ -105,16 +105,9 @@ public class UserService {
     public boolean saveUser(User user, String updateRole) throws DaoException {
         LOGGER.debug("Saving new user authrities to database");
 
-//        Set<String> roles = Arrays.stream(Role.values())
-//                .map(Role::name)
-//                .collect(Collectors.toSet());
-
-//        if (roles.contains(updateRole)) {
         user.setUserRole(Role.valueOf(updateRole));
         try (UserDao userDao = daoFactory.createUserDao()) {
             return userDao.save(user);
         }
-//        }
-//        return false;
     }
 }

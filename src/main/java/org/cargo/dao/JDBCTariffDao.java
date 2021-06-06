@@ -132,22 +132,7 @@ public class JDBCTariffDao implements TariffDao {
      * //     * @param size - size enum name
      * //     * @param  weight - weight enum name
      */
-//    public Tariff findTariff(String address, String size, String weight){
-//        LOGGER.debug("Getting tariff by address = " + address + "and size = " + size + "and weight = " + weight);
-//
-//        Tariff tariff = null;
-//        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM tariffs WHERE address = ? AND size = ? AND weight = ?")) {
-//            pstm.setString(1, address); //прверить нужен стринг или нєйм или обджект
-//            pstm.setString(2,  size);
-//            pstm.setString(3, weight);
-//            ResultSet rs = pstm.executeQuery();
-//            tariff = mapTariff(rs);
-//            rs.close();
-//        } catch (SQLException e) {
-//            LOGGER.error(e.getMessage());
-//        }
-//        return tariff;
-//    }
+
     private Tariff mapTariff(ResultSet rs) throws SQLException {
         Tariff temp = new TariffBuilder().setId(rs.getInt("id"))
                 .setPrice(rs.getInt("price"))
@@ -164,13 +149,14 @@ public class JDBCTariffDao implements TariffDao {
         LOGGER.debug("Updating current tariff --> " + entity);
         Tariff tariff = (Tariff) entity;
 
-        try {
-            PreparedStatement pstm = connection.prepareStatement("UPDATE tariffs set price=?, address=?, size=?, weight=?, delivery_term_days=? WHERE id=?;", Statement.RETURN_GENERATED_KEYS);
+        try (PreparedStatement pstm = connection.prepareStatement("UPDATE tariffs set price=?, address=?, size=?, weight=?, delivery_term_days=? WHERE id=?;", Statement.RETURN_GENERATED_KEYS)) {
+
             pstm.setInt(1, tariff.getPrice());
             pstm.setString(2, tariff.getAddress().name());
             pstm.setString(3, tariff.getSize().name());
             pstm.setString(4, tariff.getWeight().name());
             pstm.setInt(5, tariff.getDeliveryTermDays());
+            pstm.setInt(6, tariff.getId());
 
             pstm.executeUpdate();
 

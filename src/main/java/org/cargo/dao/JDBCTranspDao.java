@@ -5,6 +5,7 @@ import org.cargo.bean.transportation.*;
 import org.cargo.bean.user.Role;
 import org.cargo.bean.user.User;
 import org.cargo.bean.user.UserBuilder;
+import org.cargo.exception.DaoException;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -20,16 +21,16 @@ public class JDBCTranspDao implements TranspDao{
     }
 
     /**
-     *Creates new transportation in database.
+     * Creates new transportation in database.
      * Saves new transportation id from database.
      */
     @Override
-    public Transportation create(Object entity) {
+    public Transportation create(Object entity) throws DaoException {
         LOGGER.debug("Creating new transportation");
         Transportation tr = (Transportation) entity;
 
-        try(PreparedStatement pstm = connection.prepareStatement("INSERT INTO transportations (comment, user_id, tariff_id, created_at, delivery_at, status_id) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement pstm2 = connection.prepareStatement("SELECT * FROM tariffs WHERE address = ? AND size = ? AND weight = ?")) {
+        try (PreparedStatement pstm = connection.prepareStatement("INSERT INTO transportations (comment, user_id, tariff_id, created_at, delivery_at, status_id) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+             PreparedStatement pstm2 = connection.prepareStatement("SELECT * FROM tariffs WHERE address = ? AND size = ? AND weight = ?")) {
             connection.setAutoCommit(false);
 
             pstm2.setString(1, tr.getTariff().getAddress().name());
@@ -63,19 +64,19 @@ public class JDBCTranspDao implements TranspDao{
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
             rollbackQuiet(connection);
-            throw new RuntimeException(e.getMessage());  //TODO
+            throw new DaoException("Order was not created");
         }
     }
+
     /**
-     *Fetches transportation from database by id.
-     *
+     * Fetches transportation from database by id.
      */
     @Override
-    public Transportation findById(int id) {
+    public Transportation findById(int id) throws DaoException {
         LOGGER.debug("Getting transportation with id " + id);
         Transportation tr = new Transportation();
 
-        try(PreparedStatement ps = connection.prepareStatement("SELECT * FROM transportations WHERE id = ?;")) {
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM transportations WHERE id = ?;")) {
             connection.setAutoCommit(false);
 
             ps.setInt(1, id);
@@ -89,8 +90,9 @@ public class JDBCTranspDao implements TranspDao{
             connection.setAutoCommit(true);
             rst.close();
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
             rollbackQuiet(connection);
+            throw new DaoException("Order was not found by id");
         }
         return tr;
     }
@@ -100,11 +102,11 @@ public class JDBCTranspDao implements TranspDao{
      * @return List of transportations
      */
     @Override
-    public List<Transportation> findAll() {
+    public List<Transportation> findAll() throws DaoException {
         LOGGER.debug("Creating a list of transportations");
 
         List<Transportation> transpList = new ArrayList<>();
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations")) {
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations")) {
             connection.setAutoCommit(false);
             ResultSet rs = pstm.executeQuery();
 
@@ -116,36 +118,39 @@ public class JDBCTranspDao implements TranspDao{
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
             rollbackQuiet(connection);
+            throw new DaoException("Orders were not found");
         }
         return transpList;
     }
 
     @Override
-    public boolean update(Object entity) {
+    public boolean update(Object entity) { //TODO
         return false;
     }
+
     /**
      * Fetches single transportations from result set.
+     *
      * @return List of transportations
      */
-    private Transportation getTransportation(ResultSet rs) throws SQLException {
+    private Transportation getTransportation(ResultSet rs) throws DaoException, SQLException {
         Transportation tr = new TransportationBuilder().setId(rs.getInt("id"))
-                    .setComment(rs.getString("comment"))
-                    .setCreationDate(rs.getDate("created_at").toLocalDate())
-                    .setDeliveryDate(rs.getDate("delivery_at").toLocalDate())
-                    .setOrderStatus(OrderStatus.values()[rs.getInt("status_id") - 1])
-                    .setCustomer(addCustomerForTransportation(rs.getInt("user_id")))
-                    .setTariff(addTariffForTransportation(rs.getInt("tariff_id")))
-                    .build();
+                .setComment(rs.getString("comment"))
+                .setCreationDate(rs.getDate("created_at").toLocalDate())
+                .setDeliveryDate(rs.getDate("delivery_at").toLocalDate())
+                .setOrderStatus(OrderStatus.values()[rs.getInt("status_id") - 1])
+                .setCustomer(addCustomerForTransportation(rs.getInt("user_id")))
+                .setTariff(addTariffForTransportation(rs.getInt("tariff_id")))
+                .build();
 
         return tr;
     }
 
-    private User addCustomerForTransportation(int id){
-            User user = new User();
-        try(PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE id=?")){
+    private User addCustomerForTransportation(int id) throws DaoException {
+        User user = new User();
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM users WHERE id=?")) {
             ps.setLong(1, id);
 
             ResultSet rst = ps.executeQuery();
@@ -153,7 +158,8 @@ public class JDBCTranspDao implements TranspDao{
             user = getUser(rst);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());  //TODO
+            LOGGER.error(e.getMessage());
+            throw new DaoException("User could not be added");
         }
         return user;
     }
@@ -173,9 +179,9 @@ public class JDBCTranspDao implements TranspDao{
         return user;
     }
 
-    private Tariff addTariffForTransportation(int id){
+    private Tariff addTariffForTransportation(int id) throws DaoException {
         Tariff tariff = new Tariff();
-        try(PreparedStatement ps = connection.prepareStatement("SELECT * FROM tariffs WHERE id=?")){
+        try (PreparedStatement ps = connection.prepareStatement("SELECT * FROM tariffs WHERE id=?")) {
             ps.setLong(1, id);
 
             ResultSet rst = ps.executeQuery();
@@ -183,7 +189,8 @@ public class JDBCTranspDao implements TranspDao{
             tariff = mapTariff(rst);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
+            throw new DaoException("Tariff could not be added to transportation");
         }
         return tariff;
     }
@@ -207,10 +214,10 @@ public class JDBCTranspDao implements TranspDao{
      * Saves new user's authorities: user name and user role.
      */
     @Override
-    public boolean saveStatus(Integer id, OrderStatus status) {
+    public boolean saveStatus(Integer id, OrderStatus status) throws DaoException {
         LOGGER.debug("Updating current transportation set status--> " + status.name());
 
-        try(PreparedStatement pstm = connection.prepareStatement("UPDATE transportations set status_id=? WHERE id=?;")){
+        try (PreparedStatement pstm = connection.prepareStatement("UPDATE transportations set status_id=? WHERE id=?;")) {
 
             pstm.setInt(1, status.ordinal() + 1);
             pstm.setInt(2, id);
@@ -220,21 +227,23 @@ public class JDBCTranspDao implements TranspDao{
             LOGGER.debug("Transportation with id" + id + " has been saved");
             return true;
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
-            return false;
+            LOGGER.error(e.getMessage());
+            throw new DaoException("New status of the order was not saved");
         }
     }
 
     /**
      * Fetches all user's transportations from database.
+     *
      * @return List of transportations or an empty list
      */
     @Override
-    public List<Transportation> findTransportationByUserId(Integer id, Integer offset, Integer size, String sortDirection, String sortBy) {
+    public List<Transportation> findTransportationByUserId(Integer id,
+                                                           Integer offset, Integer size, String sortDirection, String sortBy) throws DaoException {
         LOGGER.debug("Creating a list of user's transportations");
 
         List<Transportation> userTransportations = new ArrayList<>();
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations WHERE user_id=? ORDER BY " +
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations WHERE user_id=? ORDER BY " +
                 sortBy + " " + sortDirection + " LIMIT ?, ?")) {
             connection.setAutoCommit(false);
 
@@ -252,20 +261,22 @@ public class JDBCTranspDao implements TranspDao{
             connection.setAutoCommit(true);
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
             rollbackQuiet(connection);
+            throw new DaoException("Transportation wasn't found by user's id");
         }
 
         return userTransportations;
     }
 
     @Override
-    public List<Transportation> findPages(Integer offset, Integer size, String sortDirection, String sortBy){
+    public List<Transportation> findPages(Integer offset,
+                                          Integer size, String sortDirection, String sortBy) throws DaoException {
         LOGGER.debug("Getting page with offset " + offset + ", size " + size);
 
         List<Transportation> temp = new ArrayList<>();
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations ORDER BY " +
-                                        sortBy + " " + sortDirection + " LIMIT ?, ?")){
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations ORDER BY " +
+                sortBy + " " + sortDirection + " LIMIT ?, ?")) {
             connection.setAutoCommit(false);
             pstm.setInt(1, offset);
             pstm.setInt(2, size);
@@ -280,12 +291,14 @@ public class JDBCTranspDao implements TranspDao{
         } catch (SQLException e) {
             LOGGER.error(e.getMessage()); //TODO
             rollbackQuiet(connection);
+            throw new DaoException("No pages could be found");
         }
         return temp;
     }
 
     @Override
-    public List<Transportation> findTransportationByAddress(Integer offset, Integer size, String sortDirection, String address){
+    public List<Transportation> findTransportationByAddress(Integer offset,
+                                                            Integer size, String sortDirection, String address) throws DaoException {
         LOGGER.debug("Getting transportation by address with offset " + offset + ", size " + size);
         List<Transportation> transportations = new ArrayList<>();
 
@@ -304,7 +317,8 @@ public class JDBCTranspDao implements TranspDao{
             rs.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
+            throw new DaoException("No transportations were found by the address");
 
         }
         return transportations;
@@ -312,12 +326,13 @@ public class JDBCTranspDao implements TranspDao{
     }
 
     @Override
-    public List<Transportation> findTransportationByDate(Integer offset, Integer size, String sortDirection, String sortBy, LocalDate date){
+    public List<Transportation> findTransportationByDate(Integer offset,
+                                                         Integer size, String sortDirection, String sortBy, LocalDate date) throws DaoException {
         LOGGER.debug("Getting transportation by date with offset " + offset + ", size " + size);
         List<Transportation> transportations = new ArrayList<>();
 
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations tr JOIN users u ON tr.user_id=u.id JOIN tariffs t ON tr.tariff_id=t.id WHERE tr.created_at LIKE ? ORDER BY " +
-                "tr.id " + sortDirection + " LIMIT ?, ?")){
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM transportations tr JOIN users u ON tr.user_id=u.id JOIN tariffs t ON tr.tariff_id=t.id WHERE tr.created_at LIKE ? ORDER BY " +
+                "tr.id " + sortDirection + " LIMIT ?, ?")) {
 
             pstm.setString(1, date.toString());
             pstm.setInt(2, offset);
@@ -332,7 +347,8 @@ public class JDBCTranspDao implements TranspDao{
             rs.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
+            throw new DaoException("No transportations were found by address");
 
         }
         return transportations;
@@ -360,13 +376,13 @@ public class JDBCTranspDao implements TranspDao{
     }
 
     @Override
-    public void close() {
+    public void close() throws DaoException {
         try {
-            if(connection != null){
+            if (connection != null) {
                 connection.close();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);//TODO logger + work out
+            throw new DaoException("Connection could not be closed");
         }
     }
 
@@ -374,7 +390,7 @@ public class JDBCTranspDao implements TranspDao{
         try {
             con.rollback();
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
         }
     }
 }

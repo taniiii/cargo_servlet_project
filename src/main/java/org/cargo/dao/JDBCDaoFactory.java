@@ -1,7 +1,7 @@
 package org.cargo.dao;
 
 import org.apache.log4j.Logger;
-import org.cargo.service.UserService;
+import org.cargo.exception.DaoException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,29 +13,30 @@ public class JDBCDaoFactory extends DaoFactory{
      private DataSource dataSource = ConnectionPoolHolder.getDataSource();
 
      @Override
-     public UserDao createUserDao(){
+     public UserDao createUserDao() throws DaoException {
           LOGGER.debug("Creating new connection for JDBCUserDao");
           return new JDBCUserDao(getConnection());
      }
 
      @Override
-     public TariffDao createTariffDao(){
+     public TariffDao createTariffDao() throws DaoException {
           LOGGER.debug("Creating new connection for JDBCTariffDao");
           return new JDBCTariffDao(getConnection());
      }
+
      @Override
-     public TranspDao createTranspDao() {
+     public TranspDao createTranspDao() throws DaoException {
           LOGGER.debug("Creating new connection for JDBCTranspDao");
           return new JDBCTranspDao(getConnection());
      }
 
-     private Connection getConnection(){
+     private Connection getConnection() throws DaoException {
           LOGGER.debug("Getting new connection to database");
           try {
                return dataSource.getConnection();
           } catch (SQLException e) {
                LOGGER.error(e.getMessage());
-               throw new RuntimeException();//TODO кстомное исключение
+               throw new DaoException("Connection could not be closed");//new RuntimeException();//TODO кстомное исключение
           }
      }
 }

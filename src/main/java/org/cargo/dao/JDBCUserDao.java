@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.cargo.bean.user.Role;
 import org.cargo.bean.user.User;
 import org.cargo.bean.user.UserBuilder;
+import org.cargo.exception.DaoException;
 import org.cargo.service.Encoder;
 
 import java.sql.*;
@@ -14,15 +15,16 @@ public class JDBCUserDao implements UserDao {
     private static final Logger LOGGER = Logger.getLogger(JDBCUserDao.class);
     private Connection connection;
 
-    public JDBCUserDao(Connection connection){
+    public JDBCUserDao(Connection connection) {
         this.connection = connection;
     }
+
     /**
-     *Creates new user in database.
+     * Creates new user in database.
      * Saves new user id from database.
      */
     @Override
-    public User create(Object entity) {
+    public User create(Object entity) throws DaoException {
         LOGGER.debug("Creating new user");
         User user = (User) entity;
 
@@ -46,15 +48,17 @@ public class JDBCUserDao implements UserDao {
             return user;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
-            throw new RuntimeException(e.getMessage()); //TODO castom exception
+            throw new DaoException("User was not registered"); //TODO castom exception
         }
     }
+
     /**
      * Searches user by user id.
+     *
      * @return fetches user from database
      */
     @Override
-    public User findById(int id) {
+    public User findById(int id) throws DaoException {
         LOGGER.debug("Getting user with id " + id);
         User user = null;
 
@@ -69,26 +73,29 @@ public class JDBCUserDao implements UserDao {
             rs.close();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+            throw new DaoException("User was not found");
         }
 
         return user;
     }
+
     /**
      * Fetches all the users from database.
+     *
      * @return List of users
      */
     @Override
-    public List<User> findAll() {
+    public List<User> findAll() throws DaoException {
         List<User> userList = new ArrayList<>();
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM users")){
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM users")) {
             ResultSet rs = pstm.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 User user = new UserBuilder().setId(rs.getInt("id"))
-                            .setUsername(rs.getString("username"))
-                            .setPassword(rs.getString("password"))
-                            .setEmail(rs.getString("email"))
-                            .setUserRole(Role.values()[rs.getInt("role_id") - 1])
+                        .setUsername(rs.getString("username"))
+                        .setPassword(rs.getString("password"))
+                        .setEmail(rs.getString("email"))
+                        .setUserRole(Role.values()[rs.getInt("role_id") - 1])
                             .build();
 //                userList.add(getUser(rs));
                 userList.add(user);
@@ -96,17 +103,18 @@ public class JDBCUserDao implements UserDao {
             rs.close();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+            throw new DaoException("Users could not be found");
         }
         return userList;
     }
 
     @Override
-    public List<User> findPages(Integer offset, Integer size, String sortDirection, String sortBy){
+    public List<User> findPages(Integer offset, Integer size, String sortDirection, String sortBy) throws DaoException {
         LOGGER.info("Getting page with offset " + offset + ", size " + size);
         List<User> users = new ArrayList<>();
 
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM users ORDER BY " +
-                sortBy + " " + sortDirection + " LIMIT ?, ?")){
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM users ORDER BY " +
+                sortBy + " " + sortDirection + " LIMIT ?, ?")) {
 
             pstm.setInt(1, offset);
             pstm.setInt(2, size);
@@ -125,16 +133,18 @@ public class JDBCUserDao implements UserDao {
             rs.close();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+            throw new DaoException("Users could not be found");
         }
         return users;
     }
 
     /**
      * Updates current user.
+     *
      * @param entity represents current user
      */
     @Override
-    public boolean update(Object entity) {
+    public boolean update(Object entity) throws DaoException {
         LOGGER.debug("Updating current user --> " + entity);
         User user = (User) entity;
 
@@ -151,14 +161,16 @@ public class JDBCUserDao implements UserDao {
             return true;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
-            return false;
+            throw new DaoException("User was not updated");//return false;
         }
     }
+
     /**
      * Searches user by user name.
+     *
      * @param username represents username from DB     *
      */
-    public User findUserByUsername(String username) {
+    public User findUserByUsername(String username) throws DaoException {
         User user = null;
 
         try {
@@ -171,16 +183,19 @@ public class JDBCUserDao implements UserDao {
             pstm.close();
             rs.close();
         } catch (SQLException e) {
-           LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage());
+            throw new DaoException("User was not found by username");
         }
         return user;
     }
+
     /**
      * Saves new user's authorities: user name and user role.
+     *
      * @return
      */
     @Override
-    public boolean save(User user) {
+    public boolean save(User user) throws DaoException {
         LOGGER.debug("Updating current user authorities--> " + user);
         User userToUpdate = user;
 
@@ -197,16 +212,17 @@ public class JDBCUserDao implements UserDao {
             return true;
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
-            return false;
+            throw new DaoException("User was not saved");
         }
     }
 
     /**
      * Searches user by credentials.
+     *
      * @param username represents username from DB
      * @param password represents encrypted password from DB
      */
-    public User findUserByUsernameAndPassword(String username, String password){
+    public User findUserByUsernameAndPassword(String username, String password) throws DaoException {
         LOGGER.debug("Getting user with username = " + username + "and password = *");
         User user = null;
         PreparedStatement pstm = null;
@@ -221,6 +237,7 @@ public class JDBCUserDao implements UserDao {
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+            throw new DaoException("User was not found");
         }
 
         return user;
@@ -241,11 +258,11 @@ public class JDBCUserDao implements UserDao {
     }
 
     @Override
-    public void close() {
+    public void close() throws DaoException {
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);//TODO logger + work out
+            throw new DaoException("Connection could not be closed");
         }
     }
 }

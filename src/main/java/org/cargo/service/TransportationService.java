@@ -9,6 +9,7 @@ import org.cargo.bean.transportation.TransportationBuilder;
 import org.cargo.bean.user.User;
 import org.cargo.dao.DaoFactory;
 import org.cargo.dao.TranspDao;
+import org.cargo.exception.DaoException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,7 +38,7 @@ public class TransportationService {
      * This method creates new transportation order with user,
      * tariff and order comment
      */
-    public Transportation createTransportation(User user, Tariff tariff, String comment) {
+    public Transportation createTransportation(User user, Tariff tariff, String comment) throws DaoException {
         LOGGER.debug("Saving new transportation order");
 
         Transportation temp = new TransportationBuilder()
@@ -59,7 +60,7 @@ public class TransportationService {
     /**
      * This method finds all existing transportations.
      */
-    public List<Transportation> getAllTransportations(){
+    public List<Transportation> getAllTransportations() throws DaoException {
         LOGGER.debug("Fetching all the transportations from database");
 
         try (TranspDao transpDao = daoFactory.createTranspDao()) {
@@ -67,48 +68,52 @@ public class TransportationService {
         }
     }
 
-    public boolean saveTransportation(Integer id, OrderStatus status){
+    public boolean saveTransportation(Integer id, OrderStatus status) throws DaoException {
         LOGGER.debug("Saving new transportation status to database");
 
-            try(TranspDao transpDao = daoFactory.createTranspDao()) {
-                return transpDao.saveStatus(id, status);
-            }
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
+            return transpDao.saveStatus(id, status);
         }
+    }
 
 
-    public Page<Transportation> findTransportationsByUser(Object user, Integer pageNo, Integer pageSize, String sortDirection, String sortBy){
+    public Page<Transportation> findTransportationsByUser(Object user,
+                                                          Integer pageNo, Integer pageSize, String sortDirection, String sortBy) throws DaoException {
         LOGGER.debug("Fetching all user's transportations from database");
 
         User loggedUser = (User) user;
-        try(TranspDao transpDao = daoFactory.createTranspDao()){
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
             List<Transportation> items = transpDao.findTransportationByUserId(
                     loggedUser.getId(), (pageNo - 1) * pageSize, pageSize, sortDirection, sortBy);
             return new Page<Transportation>(items, pageNo, pageSize);
         }
     }
 
-    public Page<Transportation> getAllTransportationsPaginated(Integer pageNo, Integer pageSize, String sortDirection, String sortBy){
+    public Page<Transportation> getAllTransportationsPaginated(Integer pageNo,
+                                                               Integer pageSize, String sortDirection, String sortBy) throws DaoException {
         LOGGER.debug("Fetching all the transportations from database paginated");
 
-        try(TranspDao transpDao = daoFactory.createTranspDao()){
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
             List<Transportation> items = transpDao.findPages((pageNo - 1) * pageSize, pageSize, sortDirection, sortBy);
             return new Page<Transportation>(items, pageNo, pageSize);
         }
     }
 
-    public Page<Transportation> findTransportationsByAddress(Integer pageNo, Integer pageSize, String sortDirection, String address){
+    public Page<Transportation> findTransportationsByAddress(Integer pageNo,
+                                                             Integer pageSize, String sortDirection, String address) throws DaoException {
         LOGGER.debug("Searching transportations from database by destination address");
 
-        try(TranspDao transpDao = daoFactory.createTranspDao()){
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
             List<Transportation> items = transpDao.findTransportationByAddress((pageNo - 1) * pageSize, pageSize, sortDirection, address);
             return new Page<Transportation>(items, pageNo, pageSize);
         }
     }
 
-    public Page<Transportation> findTransportationByDate(Integer pageNo, Integer pageSize, String sortBy, String sortDirection, LocalDate date){
+    public Page<Transportation> findTransportationByDate(Integer pageNo,
+                                                         Integer pageSize, String sortBy, String sortDirection, LocalDate date) throws DaoException {
         LOGGER.debug("Searching transportations from database by creation date");
 
-        try(TranspDao transpDao = daoFactory.createTranspDao()){
+        try (TranspDao transpDao = daoFactory.createTranspDao()) {
             List<Transportation> items = transpDao.findTransportationByDate((pageNo - 1) * pageSize, pageSize, sortDirection, sortBy, date);
             return new Page<Transportation>(items, pageNo, pageSize);
         }

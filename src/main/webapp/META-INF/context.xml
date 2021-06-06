@@ -8,7 +8,7 @@
               username="root"
               password="Tan456*Y"
               driverClassName="com.mysql.jdbc.Driver"
-              url="jdbc:mysql://localhost:3306/cargo_servlet_db?characterEncoding=utf8"
+              url="jdbc:mysql://localhost:3306/cargo_servlet_db?characterEncoding=UTF-8"
               removeAbandoned="true"
               removeAbandonedTimeout="30"
               maxActive="100"

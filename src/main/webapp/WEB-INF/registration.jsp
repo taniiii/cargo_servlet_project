@@ -30,6 +30,8 @@
             <!-- размеры поля лейбла -->
             <div class="col-sm-6">
                 <input type="text" name="username" class="form-control" placeholder="User name"/>
+                <small id="usernameHelp" class="form-text text-muted"><fmt:message key="username.help"
+                                                                                   bundle="${bundle}"/></small>
             </div>
         </div>
 

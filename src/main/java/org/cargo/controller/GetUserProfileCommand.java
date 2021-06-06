@@ -2,6 +2,7 @@ package org.cargo.controller;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.user.User;
+import org.cargo.exception.DaoException;
 import org.cargo.properties.MappingProperties;
 import org.cargo.service.Encoder;
 import org.cargo.service.UserService;
@@ -19,6 +20,7 @@ public class GetUserProfileCommand implements Command {
 
     private static String profilePage;
     private static String homePage;
+    private static String errorPage;
 
     public GetUserProfileCommand() {
         LOGGER.debug("Initializing GetUserProfileCommand");
@@ -26,6 +28,7 @@ public class GetUserProfileCommand implements Command {
         MappingProperties properties = MappingProperties.getInstance();
         profilePage = properties.getProperty("profilePage");
         homePage = properties.getProperty("redirect.home");
+        errorPage = properties.getProperty("errorPage");
     }
 
     @Override
@@ -39,9 +42,13 @@ public class GetUserProfileCommand implements Command {
                 request.getParameter("email"))) {
             user.setEmail(request.getParameter("email"));
             user.setPassword(Encoder.encrypt(request.getParameter("password")));
-            userService.updateProfile(user);
+            try {
+                userService.updateProfile(user);
+                return homePage;
+            } catch (DaoException e) {
+                return errorPage;
+            }
 
-            return homePage;
         } else {
             request.setAttribute("msgBadUpdate", " ");
         }

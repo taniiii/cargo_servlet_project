@@ -24,7 +24,7 @@ public class LogoutCommand implements Command{
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.setAttribute("user", null);
-            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");//??????????
+            session.setAttribute("authenticated", false);
             session.invalidate();
             //session.setAttribute("msgInfo", "You have been logged out");
         }

@@ -1,16 +1,18 @@
 package org.cargo.dao;
 
+import org.cargo.exception.DaoException;
+
 import java.util.List;
 
 public interface GenericDao<T> extends AutoCloseable {
 
-    Object create(T entity);
+    Object create(T entity) throws DaoException;
 
-    T findById(int id);
+    T findById(int id) throws DaoException;
 
-    List<T> findAll();
+    List<T> findAll() throws DaoException;
 
-    boolean update(T entity);
+    boolean update(T entity) throws DaoException;
 
-    void close();
+    void close() throws DaoException;
 }

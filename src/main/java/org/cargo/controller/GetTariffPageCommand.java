@@ -3,6 +3,7 @@ package org.cargo.controller;
 import org.apache.log4j.Logger;
 import org.cargo.bean.Page;
 import org.cargo.bean.transportation.Tariff;
+import org.cargo.exception.DaoException;
 import org.cargo.properties.MappingProperties;
 import org.cargo.service.TariffService;
 
@@ -14,12 +15,14 @@ public class GetTariffPageCommand implements Command{
 
     private static TariffService tariffService = TariffService.getInstance();
     private static String tariffPage;
+    private static String errorPage;
 
     public GetTariffPageCommand(){
         LOGGER.debug("Initializing GetTariffPageCommand");
 
         MappingProperties properties = MappingProperties.getInstance();
         tariffPage = properties.getProperty("tariffPage");
+        errorPage = properties.getProperty("errorPage");
     }
 
     @Override
@@ -30,12 +33,16 @@ public class GetTariffPageCommand implements Command{
         Integer pageNo = Integer.parseInt(request.getParameter("p"));
         Integer pageSize = Integer.parseInt(request.getParameter("s"));
         String sortDirection = request.getParameter("sortDirection");
+        try {
+            Page<Tariff> page = tariffService.getAllTariffsPaginated(pageNo, pageSize, sortDirection);
 
-        Page<Tariff> page = tariffService.getAllTariffsPaginated(pageNo, pageSize, sortDirection);
-
-        request.getSession().setAttribute("tariffs", page);
-        request.getSession().setAttribute("currentPage", pageNo);
-        request.getSession().setAttribute("reverseSortDirection", sortDirection.equals("asc") ? "desc" : "asc");
-        return tariffPage;
+            request.getSession().setAttribute("tariffs", page);
+            request.getSession().setAttribute("currentPage", pageNo);
+            request.getSession().setAttribute("reverseSortDirection", sortDirection.equals("asc") ? "desc" : "asc");
+            return tariffPage;
+        } catch (DaoException e) {
+            request.getSession().setAttribute("errorMessage", e.getMessage());
+            return errorPage;
+        }
     }
 }

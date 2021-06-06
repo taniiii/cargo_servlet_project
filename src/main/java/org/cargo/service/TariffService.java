@@ -5,6 +5,7 @@ import org.cargo.bean.Page;
 import org.cargo.bean.transportation.Tariff;
 import org.cargo.dao.DaoFactory;
 import org.cargo.dao.TariffDao;
+import org.cargo.exception.DaoException;
 
 import java.util.List;
 
@@ -28,19 +29,18 @@ public class TariffService {
 
     /**
      * This method fetches all the tariffs from database.
-     *
-     *
      */
-    public List<Tariff> getAllTariffs(){
-        try(TariffDao tariffDao = daoFactory.createTariffDao()){
+    public List<Tariff> getAllTariffs() throws DaoException {
+        try (TariffDao tariffDao = daoFactory.createTariffDao()) {
             return tariffDao.findAll();
         }
     }
 
-    public Page<Tariff> getAllTariffsPaginated(Integer pageNo, Integer pageSize, String sortDirection){
+    public Page<Tariff> getAllTariffsPaginated(Integer pageNo,
+                                               Integer pageSize, String sortDirection) throws DaoException {
         LOGGER.info("Getting page number " + pageNo + ", of size " + pageSize);
 
-        try(TariffDao tariffDao = daoFactory.createTariffDao()){
+        try (TariffDao tariffDao = daoFactory.createTariffDao()) {
             List<Tariff> items = tariffDao.findPages((pageNo - 1) * pageSize, pageSize, sortDirection);
             return new Page<Tariff>(items, pageNo, pageSize);
         }

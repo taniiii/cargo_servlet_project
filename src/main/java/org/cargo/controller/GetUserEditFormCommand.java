@@ -2,6 +2,7 @@ package org.cargo.controller;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.user.Role;
+import org.cargo.exception.DaoException;
 import org.cargo.properties.MappingProperties;
 import org.cargo.service.UserService;
 
@@ -33,8 +34,12 @@ public class GetUserEditFormCommand implements Command {
             return errorPage;
         }
         Integer id = Integer.parseInt(request.getParameter("id"));
-        request.getSession().setAttribute("updatedUser", userService.findUserById(id));
-        request.getSession().setAttribute("roles", Role.values());
+        try {
+            request.getSession().setAttribute("updatedUser", userService.findUserById(id));
+            request.getSession().setAttribute("roles", Role.values());
+        } catch (DaoException e) {
+            return errorPage;
+        }
 
         return userEditPage;
     }

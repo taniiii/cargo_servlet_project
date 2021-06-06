@@ -2,6 +2,7 @@ package org.cargo.dao;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.transportation.*;
+import org.cargo.exception.DaoException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class JDBCTariffDao implements TariffDao {
      * Saves new tariff id from database.
      */
     @Override
-    public Tariff create(Object entity) {
+    public Tariff create(Object entity) throws DaoException {
         LOGGER.debug("Creating new tariff");
         Tariff tariff = (Tariff) entity;
 
@@ -47,20 +48,21 @@ public class JDBCTariffDao implements TariffDao {
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
-            throw new RuntimeException(e.getMessage()); //TODO castom exception
+            throw new DaoException("Tariff was not created");
         }
     }
 
     /**
      * Searches user by user id.
+     *
      * @return fetches user from database
      */
     @Override
-    public Tariff findById(int id) {
+    public Tariff findById(int id) throws DaoException {
         LOGGER.debug("Getting tariff with id " + id);
         Tariff tariff = null;
 
-        try(PreparedStatement pstm = connection.prepareStatement("SELECT * FROM tariffs WHERE id = ?")) {
+        try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM tariffs WHERE id = ?")) {
 
             pstm.setLong(1, id);
 
@@ -69,39 +71,43 @@ public class JDBCTariffDao implements TariffDao {
             tariff = mapTariff(rs);
             rs.close();
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
+            throw new DaoException("Tariff was not found");
         }
         return tariff;
     }
+
     /**
      * Fetches all of the existing tariffs from database.
+     *
      * @return List of tariffs
      */
     @Override
-    public List<Tariff> findAll() {
+    public List<Tariff> findAll() throws DaoException {
         List<Tariff> tariffList = new ArrayList<>();
         try {
             PreparedStatement pstm = connection.prepareStatement("SELECT * FROM tariffs");
             ResultSet rs = pstm.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 tariffList.add(mapTariff(rs));
             }
             rs.close();
             pstm.close();
 
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
+            LOGGER.error(e.getMessage());
+            throw new DaoException("Tariff list could not be loaded");
         }
         return tariffList;
     }
 
-    public List findPages(Integer offset, Integer size, String sortDirection){
+    public List findPages(Integer offset, Integer size, String sortDirection) throws DaoException {
         LOGGER.info("Getting page with offset " + offset + ", size " + size);
         List<Tariff> tariffs = new ArrayList<>();
 
         try (PreparedStatement pstm = connection.prepareStatement("SELECT * FROM tariffs ORDER BY address "
-                + sortDirection.toUpperCase() + " LIMIT ?, ?")){
+                + sortDirection.toUpperCase() + " LIMIT ?, ?")) {
 
             pstm.setInt(1, offset);
             pstm.setInt(2, size);
@@ -115,6 +121,7 @@ public class JDBCTariffDao implements TariffDao {
             rs.close();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+            throw new DaoException("Tariff list could not be loaded");
         }
         return tariffs;
     }
@@ -153,7 +160,7 @@ public class JDBCTariffDao implements TariffDao {
     }
 
     @Override
-    public boolean update(Object entity) {
+    public boolean update(Object entity) throws DaoException {
         LOGGER.debug("Updating current tariff --> " + entity);
         Tariff tariff = (Tariff) entity;
 
@@ -171,17 +178,17 @@ public class JDBCTariffDao implements TariffDao {
             pstm.close();
             return true;
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage()); //TODO
-            return false;
+            LOGGER.error(e.getMessage());
+            throw new DaoException("Tariff was not updated");
         }
     }
 
     @Override
-    public void close() {
+    public void close() throws DaoException {
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);  //TODO logger + work out
+            throw new DaoException("Connection could not be closed");
         }
     }
 }

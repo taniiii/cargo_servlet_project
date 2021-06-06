@@ -14,30 +14,30 @@ public class AuthorityUserFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        LOGGER.debug("Filter initialization starts");
+        LOGGER.trace("Filter initialization starts");
         MappingProperties properties = MappingProperties.getInstance();
         loginPage = properties.getProperty("loginPage");
-        LOGGER.debug("Filter initialization finished");
+        LOGGER.trace("Filter initialization finished");
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        LOGGER.debug("Filter starts");
+        LOGGER.trace("Filter starts");
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpSession session = req.getSession(false);
         if(session == null || session.getAttribute("role") == null){
             request.getRequestDispatcher(loginPage).forward(request, response);
         } else {
-            LOGGER.debug("Filter finished");
+            LOGGER.trace("Filter finished");
             chain.doFilter(request, response);
         }
     }
 
     @Override
     public void destroy() {
-        LOGGER.debug("Filter destruction starts");
+        LOGGER.trace("Filter destruction starts");
         // do nothing
-        LOGGER.debug("Filter destruction finished");
+        LOGGER.trace("Filter destruction finished");
     }
 }

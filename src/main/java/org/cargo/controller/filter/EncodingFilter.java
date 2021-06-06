@@ -19,22 +19,22 @@ public class EncodingFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        LOGGER.debug("Filter starts");
+        LOGGER.trace("Filter starts");
 
         servletResponse.setContentType("text/html");
         servletResponse.setCharacterEncoding("UTF-8");
         servletRequest.setCharacterEncoding("UTF-8");
 
 
-        LOGGER.debug("Filter finished");
+        LOGGER.trace("Filter finished");
         filterChain.doFilter(servletRequest, servletResponse);
 
     }
 
     @Override
     public void destroy() {
-        LOGGER.debug("Filter destruction starts");
+        LOGGER.trace("Filter destruction starts");
         // do nothing
-        LOGGER.debug("Filter destruction finished");
+        LOGGER.trace("Filter destruction finished");
     }
 }

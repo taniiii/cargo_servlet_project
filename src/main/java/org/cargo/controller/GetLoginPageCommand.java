@@ -2,6 +2,7 @@ package org.cargo.controller;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.user.User;
+import org.cargo.exception.DaoException;
 import org.cargo.properties.MappingProperties;
 import org.cargo.service.UserService;
 
@@ -20,6 +21,8 @@ public class GetLoginPageCommand implements Command {
 
     private static String loginPage;
     private static String homePage;
+    private static String accessErrorPage;
+    private static String errorPage;
 
     public GetLoginPageCommand() {
         LOGGER.debug("Initializing GetLoginPageCommand");
@@ -27,6 +30,8 @@ public class GetLoginPageCommand implements Command {
         MappingProperties properties = MappingProperties.getInstance();
         loginPage = properties.getProperty("loginPage");
         homePage = properties.getProperty("redirect.home");
+        accessErrorPage = properties.getProperty("errorAccessPage");
+        errorPage = properties.getProperty("errorPage");
     }
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
@@ -38,21 +43,27 @@ public class GetLoginPageCommand implements Command {
             return loginPage;
         }
 
-        User user = userService.getUserByCredentials(request.getParameter("username"),
-                request.getParameter("password"));
-
-        if (Objects.nonNull(user)) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            session.setAttribute("authenticated", true);
-            session.setAttribute("role", user.getUserRole().name());
-            request.setAttribute("loginSuccess", true);
-        } else {
-            request.setAttribute("loginSuccess", false);
-            return loginPage;
+        if (CommandUtility.checkUserIsLogged(request, request.getParameter("username"))) {
+            return accessErrorPage;
         }
+        try {
+            User user = userService.getUserByCredentials(request.getParameter("username"),
+                    request.getParameter("password"));
 
-        return homePage;
+            if (Objects.nonNull(user)) {
+                HttpSession session = request.getSession();
+                session.setAttribute("user", user);
+                session.setAttribute("userName", user.getUsername());
+                session.setAttribute("authenticated", true);
+                session.setAttribute("role", user.getUserRole().name());
+                request.setAttribute("loginSuccess", true);
+                return homePage;
+            } else {
+                request.setAttribute("loginSuccess", false);
+                return loginPage;
+            }
+        } catch (DaoException e) {
+            return errorPage;
+        }
     }
-
 }

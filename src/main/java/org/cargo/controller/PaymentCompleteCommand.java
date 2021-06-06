@@ -2,6 +2,7 @@ package org.cargo.controller;
 
 import org.apache.log4j.Logger;
 import org.cargo.bean.transportation.OrderStatus;
+import org.cargo.exception.DaoException;
 import org.cargo.properties.MappingProperties;
 import org.cargo.service.TransportationService;
 
@@ -12,6 +13,7 @@ public class PaymentCompleteCommand implements Command{
     private static final Logger LOGGER = Logger.getLogger(PaymentCompleteCommand.class);
 
     private static String userTransportationsPage;
+    private static String errorPage;
     private static TransportationService transpService = TransportationService.getInstance();
 
     public PaymentCompleteCommand() {
@@ -19,6 +21,7 @@ public class PaymentCompleteCommand implements Command{
 
         MappingProperties properties = MappingProperties.getInstance();
         userTransportationsPage = properties.getProperty("redirect.user.orders");
+        errorPage = properties.getProperty("errorPage");
     }
 
     @Override
@@ -26,8 +29,13 @@ public class PaymentCompleteCommand implements Command{
         LOGGER.debug("Execute transportation payment complete command");
 
         Integer id = (Integer) request.getSession().getAttribute("updateTranspId");
-        transpService.saveTransportation(id, OrderStatus.PAID);
+        try {
+            transpService.saveTransportation(id, OrderStatus.PAID);
 
-        return userTransportationsPage;
+            return userTransportationsPage;
+        } catch (DaoException e) {
+            request.getSession().setAttribute("errorMessage", e.getMessage());
+            return errorPage;
+        }
     }
 }

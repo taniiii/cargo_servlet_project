@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashSet;
 
 @WebServlet("/")
 public class Servlet extends HttpServlet {
@@ -20,6 +21,9 @@ public class Servlet extends HttpServlet {
 
     public void init(ServletConfig config) throws ServletException {
         LOGGER.info("Initializing Servlet");
+
+        config.getServletContext()
+                .setAttribute("loggedUsers", new HashSet<String>());
 
         commandManager = new CommandManager();
     }

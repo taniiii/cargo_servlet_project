@@ -1,14 +1,12 @@
 package org.cargo;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.cargo.bean.user.Role;
-import org.cargo.bean.user.User;
-import org.cargo.bean.user.UserBuilder;
 import org.cargo.dao.DaoFactory;
 import org.cargo.dao.JDBCUserDao;
-import org.cargo.exception.DaoException;
 import org.cargo.service.UserService;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -21,8 +19,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import static org.mockito.Mockito.when;
 
 public class UserServiceTest {
     private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/cargo_servlet_test?user=root&password=Tan456*Y&characterEncoding=UTF-8";
@@ -49,13 +45,6 @@ public class UserServiceTest {
         reader.close();
     }
 
-    @AfterClass
-    public static void dropDown() throws SQLException {
-        Connection conn = DBManager.getDataSource().getConnection();
-        Statement st = conn.createStatement();
-        st.executeUpdate("DROP database cargo_servlet_test;");
-    }
-
     @Before
     public void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
@@ -64,15 +53,22 @@ public class UserServiceTest {
 
     }
 
-    @Test
-    public void shouldCreateNewUser() throws DaoException {
-        when(daoFactory.createUserDao()).thenReturn(jdbcUserDao);
+//    @Test
+//    public void shouldCreateNewUser() throws DaoException {
+//        when(daoFactory.createUserDao()).thenReturn(jdbcUserDao);
+//
+//        userService = UserService.getInstance();
+//        User newUser = new UserBuilder().setUsername("newUser")
+//                .setEmail("user@gmail.com")
+//                .setPassword("user12345")
+//                .setUserRole(Role.USER).build();
+//        Assert.assertNotNull(userService.registerUser(newUser));
+//    }
 
-        userService = UserService.getInstance();
-        User newUser = new UserBuilder().setUsername("newUser")
-                .setEmail("user@gmail.com")
-                .setPassword("user12345")
-                .setUserRole(Role.USER).build();
-        Assert.assertNotNull(userService.registerUser(newUser));
+    @AfterClass
+    public static void dropDown() throws SQLException {
+        Connection conn = DBManager.getDataSource().getConnection();
+        Statement st = conn.createStatement();
+        st.executeUpdate("DROP database cargo_servlet_test;");
     }
 }

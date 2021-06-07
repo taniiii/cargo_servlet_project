@@ -20,10 +20,11 @@
                     </li>
                 </c:if>
                 <c:if test="${sessionScope.authenticated == true && sessionScope.role == 'ADMIN'}">
-                <li class="nav-item">
-                    <a class="nav-link" href="${pageContext.request.contextPath}/admin/orders?p=1&s=10&sortBy=created_at&sortDirection=asc">
-                        <fmt:message key="orders.list" bundle="${bundle}"/></a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="${pageContext.request.contextPath}/admin/orders?p=1&s=5&sortBy=created_at&sortDirection=asc">
+                            <fmt:message key="orders.list" bundle="${bundle}"/></a>
+                    </li>
                 </c:if>
                 <c:if test="${sessionScope.authenticated == true && sessionScope.role == 'USER'}">
                     <li class="nav-item">

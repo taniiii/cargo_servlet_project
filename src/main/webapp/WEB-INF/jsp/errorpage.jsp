@@ -8,10 +8,15 @@
 </head>
 <body>
 <h2>
-    <fmt:message key="error.page" bundle="${bundle}"/><br/>
-    <c:if test="${sessionScope.errorMessage != null}">
-        <span>${sessionScope.errorMessage}</span>
-    </c:if>
+    This is an error page
+    <h2>Seems something went wrong, please try a bit later..</h2><br/><br/>
+
+    or <a class="nav-link" href="${pageContext.request.contextPath}/">
+    go</a> to the home page
+    <%--    <fmt:message key="error.page" bundle="${bundle}"/><br/>--%>
+    <%--    <c:if test="${sessionScope.errorMessage != null}">--%>
+    <%--        <span>${sessionScope.errorMessage}</span>--%>
+    <%--    </c:if>--%>
 
 </h2>
 </body>

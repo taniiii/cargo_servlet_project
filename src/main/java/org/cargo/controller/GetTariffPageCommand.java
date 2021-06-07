@@ -29,7 +29,6 @@ public class GetTariffPageCommand implements Command{
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.debug("Execute sending tariff page command");
 
-        //Map<String, Object> pageParam = Map.ofEntries(entry("", ))
         Integer pageNo = Integer.parseInt(request.getParameter("p"));
         Integer pageSize = Integer.parseInt(request.getParameter("s"));
         String sortDirection = request.getParameter("sortDirection");

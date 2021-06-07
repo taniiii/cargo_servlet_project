@@ -7,10 +7,11 @@
 </head>
 <body>
 <h2>this is an error page</h2><br/>
-<h2><fmt:message key="error.500" bundle="${bundle}"/></h2><br/><br/>
+This is an error page
+<h2>Seems something went wrong, please try a bit later..</h2><br/><br/>
 
-<a class="nav-link" href="${pageContext.request.contextPath}/">
-    <fmt:message key="go.main.page" bundle="${bundle}"/></a>
+or <a class="nav-link" href="${pageContext.request.contextPath}/">
+    go</a> to the home page
 
 </body>
 </html>

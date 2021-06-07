@@ -9,9 +9,6 @@ import org.cargo.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-
-import static org.cargo.service.Validator.validatePageRequest;
 
 public class GetUserListPageCommand implements Command{
     private static final Logger LOGGER = Logger.getLogger(GetUserListPageCommand.class);
@@ -31,17 +28,10 @@ public class GetUserListPageCommand implements Command{
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.debug("Executing send user list page command");
 
-        Map<String, String> pageParams = validatePageRequest(request.getParameter("p"),
-                request.getParameter("s"), request.getParameter("sortDirection"),
-                request.getParameter("sortBy"));
-
-        Integer pageNo = Integer.parseInt(pageParams.getOrDefault("p", "1"));
-        Integer pageSize = Integer.parseInt(pageParams.getOrDefault("s", "10"));
-        String sortDirection = pageParams.getOrDefault("sortDirection", "ASC");
-        String sortBy = pageParams.getOrDefault("sortBy", "id");
-//        Integer pageSize = Integer.parseInt(request.getParameter("s"));
-//        String sortDirection = request.getParameter("sortDirection");
-//        String sortBy = request.getParameter("sortBy");
+        Integer pageNo = Integer.parseInt(request.getParameter("p"));
+        Integer pageSize = Integer.parseInt(request.getParameter("s"));
+        String sortDirection = request.getParameter("sortDirection");
+        String sortBy = request.getParameter("sortBy");
         try {
             Page<User> page = userService.getAllUsersPaginated(pageNo, pageSize, sortDirection, sortBy);
 

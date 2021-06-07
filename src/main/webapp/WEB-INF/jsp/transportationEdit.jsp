@@ -18,7 +18,7 @@
                 <option value="${status.name()}">${status.name()}</option>
             </c:forEach>
         </select>
-<%--        <!--    <input type="hidden" name="transportationId" th:value="${transportation.id}"/>-->--%>
+
         <button type="submit" class="btn btn-success"><fmt:message key="save" bundle="${bundle}"/></button>
     </form>
 </div>

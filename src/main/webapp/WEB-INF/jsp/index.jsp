@@ -33,7 +33,7 @@
 </head>
 
 <body>
-<%@include file="jspf/navbar.jsp" %>
+<%@include file="../jspf/navbar.jsp" %>
 <img src="<c:url value="/static/img/auto.jpg"/>"/>
 <%--<img src="${pageContext.request.contextPath}/static/img/auto.jpg"/>--%>
 
@@ -48,7 +48,7 @@
     </c:if>
 </div>
 
-<%@include file="jspf/footer.jsp" %>
+<%@include file="../jspf/footer.jsp" %>
 
 </body>
 </html>

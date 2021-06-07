@@ -5,10 +5,10 @@
 <%@ page isELIgnored="false" %>
 
 <html>
-<%@include file="jspf/header.jsp"%>
+<%@include file="../jspf/header.jsp" %>
 
 <body style="'background: url(/static/images/ship5.jpg) no-repeat center center fixed;'">
-<%@include file="jspf/navbar.jsp"%>
+<%@include file="../jspf/navbar.jsp" %>
 
 <!--  задний фон-->
 
@@ -139,6 +139,6 @@
     </div>
 </div>
 
-<%@include file="jspf/footer.jsp"%>
+<%@include file="../jspf/footer.jsp" %>
 </body>
 </html>

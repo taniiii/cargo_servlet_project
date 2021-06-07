@@ -5,10 +5,10 @@
 <%@ page isELIgnored="false" %>
 
 <html>
-<%@include file="jspf/header.jsp"%>
+<%@include file="../jspf/header.jsp" %>
 
 <body>
-<%@include file="jspf/navbar.jsp"%>
+<%@include file="../jspf/navbar.jsp" %>
 
 <div class="container mt-5">
 
@@ -55,7 +55,7 @@
 </div>
 
 
-<%@include file="jspf/footer.jsp"%>
+<%@include file="../jspf/footer.jsp" %>
 </body>
 </html>
 

@@ -1,7 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@taglib prefix="tag" uri="/WEB-INF/tld/MySimpleTagDescriptor.tld" %>
 <%@ page contentType="text/html;charset=UTF-8"%>
 <%@ page isELIgnored="false" %>
 
@@ -23,7 +21,7 @@
           integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous"/>
 
     <title>Trustworthy cargo shipping</title>
-    <%--    <fmt:setLocale value="${locale.getLanguage()}"/>--%>
+
     <c:if test="${sessionScope.locale == null}">
         <fmt:setLocale value="en"/>
     </c:if>
@@ -50,9 +48,6 @@
     </c:if>
 </div>
 
-<div id="bottom">
-    <%--    <tag:MySimpleTag/>--%>
-</div>
 <%@include file="jspf/footer.jsp" %>
 
 </body>

@@ -4,6 +4,18 @@ body {
     background-repeat: no-repeat;
 }
 
+.footer {
+    display: flex;
+    height: 50px;
+    color: black;
+
+}
+
+.footer .bottom {
+    align-self: center;
+    margin: 0 auto;
+}
+
 /*.image {*/
 /*    background-image: url(../img/auto.jpg);*/
 /*    width: 50px; !* ширина *!*/

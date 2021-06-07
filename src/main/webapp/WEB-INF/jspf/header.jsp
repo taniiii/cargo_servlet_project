@@ -8,7 +8,7 @@
           integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous"/>
 
     <title>Trustworthy cargo shipping</title>
-<%--    <fmt:setLocale value="${locale.getLanguage()}"/>--%>
+
     <c:if test="${sessionScope.locale == null}">
         <fmt:setLocale value="en"/>
     </c:if>

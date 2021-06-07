@@ -34,7 +34,7 @@
 
 <body>
 <%@include file="../jspf/navbar.jsp" %>
-<img src="<c:url value="/static/img/auto.jpg"/>"/>
+<%--<img src="<c:url value="/static/img/auto.jpg"/>"/>--%>
 <%--<img src="${pageContext.request.contextPath}/static/img/auto.jpg"/>--%>
 
 <div class="container mt-5">
